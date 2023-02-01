@@ -1,4 +1,5 @@
-hello!
-privet
-ku
-qq
+hello!;
+privet;
+ku;
+qq;
+poka!;

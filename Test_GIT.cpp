@@ -4,5 +4,11 @@ int main()
     std::cout << "Hello World!\n";
     sorry my name
         money money class!!!
+        {
+        	class please
+        	{
+        		
+			}
+		}
 }
 

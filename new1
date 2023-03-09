@@ -1,0 +1,416 @@
+#include <iostream>
+#include <string>
+#include <stdio.h>
+#include <stdlib.h>
+#include<cstring>
+using namespace std;
+ 
+class Triad
+{
+    protected:
+    int num1; // 1-число секунда
+    int num2; // 2-число минута 
+    int num3; // 3-число часы
+    
+    public:
+    Triad()
+         {
+           num1 = 31; num2 = 45; num3 = 02;
+         } // конструктор без аргументов 
+        
+    Triad(const Triad& r) { *this = r; } //конструктор копирования
+    
+    Triad(int h, int m, int s) {
+            if (s < 0) {cout << "Первое число в триаде не является натуральным числом";exit(1);}
+            if(m < 0) {cout << "Второе число в триаде не является натуральным числом"; exit(1);}
+            if (h < 0);{cout << "Третье число в триаде не является натуральным числом"; exit(1);}
+            num1 = s; num2 = m; num3 = h;
+    }  // конструктор инициализации числами
+ 
+    Triad(char str[])
+    {
+        string str1; int n = 0, ob[3];
+        for (int i = 0; i < (strlen(str) + 1); i++)
+        {
+            if (str[i] != ':' && i != strlen(str))   //конструктор инициализации строкой
+                str1 += str[i];
+            else
+            {
+                ob[n] = atoi(str1.c_str());
+                n++;
+                str1 = "";
+            }
+        }
+        num3 = ob[0];
+        num2 = ob[1];
+        num1 = ob[2];
+    }
+ 
+    Triad(int s)
+    {
+        num3 = s / 3600;
+        num2 = (s - num3 * 3600) / 60;
+        num1 = (s - num3 * 3600 - num2 * 60);  // конструктор инициализация секундами
+    }
+ 
+        friend istream& operator>>(istream& a, Triad& b);
+        friend ostream& operator<<(ostream& c, const Triad& k);
+        friend string ToString(Triad T);
+        friend int razn(Triad a, Triad a1);
+        friend Triad summ(Triad a, int s);
+        friend Triad minuss(Triad a, int s);
+        friend bool operator>(Triad a, Triad a1);
+        friend bool operator<(Triad a, Triad a1);
+        friend bool operator==(Triad a,Triad a1);
+        friend int ToSec(Triad k);
+        friend int ToMin(Triad k);
+        
+};
+    ostream& operator<<(ostream& c, const Triad& k)
+    {
+        return(c<< k.num3 << ":" << k.num2 << ":" << k.num2 << endl);
+    }
+    
+    string ToString(Triad T)
+    {
+    string str =  to_string(T.num3) + ":" + to_string(T.num2) + ":" + to_string(T.num1);
+    return str;
+    }
+    
+    istream& operator>>(istream& a, Triad& b)
+    {
+        cout << "Введите первое число: "; a >> b.num1;    //функция ввода
+            if (b.num1 < 0) {cout << "Первое число в триаде не является натуральным числом";exit(1);}
+        cout << "Введите второе число: "; a >> b.num2;
+            if(b.num2 < 0) {cout << "Второе число в триаде не является натуральным числом"; exit(1);}
+        cout << "Введите третье число: "; a >> b.num3;
+            if (b.num3 < 0);{cout << "Третье число в триаде не является натуральным числом"; exit(1);}
+        return a;
+    }
+ 
+ 
+class Time: public Triad
+{
+public:
+    Time(){};
+    Time (int s, int m, int h) : Triad (s, m, h) {proverka();}
+    Time(char str[]): Triad(str) {proverka();}
+    Time(int s)
+    {
+        num3 = s / 3600;
+        num2 = (s - num3 * 3600) / 60;
+        num1 = (s - num3 * 3600 - num2 * 60);  // конструктор инициализация секундами
+    }
+    
+    void proverka()
+    {
+        while (num1>59) {num2+=1; num1-=60;}
+        while (num2>59) {num1+=1; num2-=60;}
+        if (num3>23) {cout<<"Часы >23. Ошибка"; exit(1);}
+     }
+ 
+    int razn(Time k)
+    {
+        int s1, flag, s2;
+        s1 = (k.num3 * 3600) + (k.num2 * 60) + k.num1;
+        cout << endl;
+        cout << "Введите второй момент времени:" << endl;     //функция разницы
+        ToString(k); cout << endl;
+        s2 = (k.num3 * 3600) + (k.num2 * 60) + k.num1;
+        s1 = abs(s1 - s2);
+        return s1;
+    }
+ 
+    Time summ(int& s, Time k)
+    {
+        int s1, f;
+        do
+        {
+            f = 0;
+            s1 = (k.num3 * 3600) + (k.num2 * 60) + k.num1 + s;  //функция время + секунды
+            if (s1 > 86400) {
+                s1 = 0; f = 1;
+                cout << "Cекунды превышают значение 23:59:59!" << endl;
+                cout << "Введите сколько секунд необходимо прибавить: "; cin >> s;
+            }
+        } while (f != 0);
+        proverka();
+        return k;
+    }
+ 
+    Time minuss(int s, Time k)
+    {
+        int s1, f;
+        do
+        {
+            f = 0;
+            s1 = ((k.num3 * 3600) + (k.num2 * 60) + k.num1) - s;
+            if (s1 > 86400 || s1 < 0) {
+                s1 = 0;
+                cout << "Cекунды меньше или превышают значение 23:59:59! " << endl;
+                cout << "Введите сколько секунд необходимо вычесть: "; cin >> s;
+                f = 1;
+            }
+        } while (f != 0);
+        proverka();
+        return k;
+    }
+    
+    bool operator>(Time a, Time a1)
+   {
+       int k1, k2;
+       k1 = (a.hour * 3600) + (a.minutes * 60) + a.second;
+       k2 = (a1.hour * 3600) + (a1.minutes * 60) + a1.second;
+       if (k1>k2) return 1;
+       else return 0;
+   }
+ 
+   bool operator<(Time a, Time a1)
+   {
+       int k1, k2;
+       k1 = (a.hour * 3600) + (a.minutes * 60) + a.second;
+       k2 = (a1.hour * 3600) + (a1.minutes * 60) + a1.second;
+       if (k1 < k2) return 1;
+       else return 0;
+   }
+ 
+   bool operator==(Time a,Time a1)
+   {
+       int k1, k2;
+       k1 = (a.hour * 3600) + (a.minutes * 60) + a.second;
+       k2 = (a1.hour * 3600) + (a1.minutes * 60) + a1.second;
+       if (k1 == k2) return 1;
+       else return 0;
+   }
+ 
+    int ToSec(Time k)
+    {
+        return (k.num3 * 3600 + k.num2 * 60 + k.num1);   //перевод в секунды
+    }
+ 
+    int ToMin(Time k)
+    {
+        return (k.num3 * 60 + k.num2);  //перевод в минуты
+    }
+};
+ 
+int main()
+{
+    setlocale(LC_ALL, "RUS");
+    int s, m, h, flag = 0, s1;
+    char str[50];
+    Time k;
+    cout << "Конструктором без аргументов:";
+    cout << "\n" << k << endl;
+    cout << "toString: " << ToString(k) << endl;
+    cout << endl;
+ 
+    cout << "Инициализация Числами:";
+    Time a(12, 14, 13);
+    cout << "\n" << a << endl;
+    cout << "toString: " << ToString(a) << endl;
+    
+    cout << "Вычисление разницы между временем и значением в секундах:" << endl;
+    cout << "Второй момент времени:"; Time a1(18, 16, 17); cout << "\n" << a1 << endl;
+    cout << "toString: " << ToString(a1) << endl;
+    s1 = razn(a, a1);
+    cout << "Разница между временем составляет (в секундах) :" << s1 << endl;
+    cout << endl;
+    
+    cout << "Сложение времени и заданного количества секунд:" << endl;
+    cout << "Введите сколько секунд необходимо прибавить ко времени:"; cin >> s;
+    if (s < 0 || s > 86399) {
+         cout << "Cекунды введены неверно! "; do {
+             cout << "Введите сколько секунд необходимо прибавить: "; cin >> s;
+         } while (s < 0 || s > 86399);
+     }                                                                                  //Время + секунды
+     cout << "Время после выполения операции:" << endl;
+     summ(a, s);
+    cout << endl;
+    
+    cout << "Вычитание из времени заданного количества секунд:" << endl;
+    cout << "Введите сколько секунд необходимо вычесть из времени:"; cin >> s;
+    if (s < 0 || s > 86399) {
+        cout << "Cекунды введены неверно! "; do {
+            cout << "Введите сколько секунд необходимо вычесть: "; cin >> s;
+        } while (s < 0 || s > 86399);
+    }                                                                      //Время - секунд
+    cout << "Время после выполения операции:" << endl;
+    minuss(a, s);
+    cout << endl;
+    
+    cout << "Сравнение 2-ух моментов времени:" << endl;    //Сравнени 2-ух моментов времени
+     cout << "Первое время : "; cout << a << endl; 
+     cout << "Второе время : "; cout << a1 << endl;
+     if(a > a1) {cout << "Первое время больше второго времени" << endl;  cout << a << " > " << a1 << endl;};
+     if (a < a1)  {cout << "Первое время меньше второго времени" << endl; cout << a << " < " << a1 << endl;}
+     if (a==a1) cout << "Промежутки времени одинаковые" << endl;
+     
+     cout << "Перевод в секунды:" << endl;    // в секунды
+     cout << "Количество секунд в данном интервале времени:" << ToSec(a) << endl;
+     cout << endl;
+     
+     cout << "Перевод в минуты:" << endl;    // в минуты
+     cout << "Количество минут в данном интервале времени (до целого значения):" << ToMin(a) << endl;
+     cout << endl;
+ 
+    cout << "Инициализация Строкой:" << endl;
+    cout << "Введите время Час:Минута:Секунда - "; cin >> str;
+    Time b(str);
+    cout  << b << endl;
+    cout << "toString: " << ToString(b) << endl;
+ 
+    cout << "Вычисление разницы между временем и значением в секундах:" << endl;
+    cout << "Второй момент времени:" << endl; cout << "Введите время Час:Минута:Секунда - "; cin >> str; Time b1(str); cout  << b1 << endl;
+    cout << "toString: " << ToString(b1) << endl;
+    s1 = razn(b, b1);
+    cout << "Разница между временем составляет (в секундах) :" << s1 << endl;
+    cout << endl;
+ 
+    cout << "Сложение времени и заданного количества секунд:" << endl;
+    cout << "Введите сколько секунд необходимо прибавить ко времени:"; cin >> s;
+    if (s < 0 || s > 86399) {
+        cout << "Cекунды введены неверно! "; do {
+            cout << "Введите сколько секунд необходимо прибавить: "; cin >> s;
+        } while (s < 0 || s > 86399);
+    }                                                                                  //Время + секунды
+    cout << "Время после выполения операции:" << endl;
+    summ(b, s);
+    cout << endl;
+ 
+    cout << "Вычитание из времени заданного количества секунд:" << endl;
+    cout << "Введите сколько секунд необходимо вычесть из времени:"; cin >> s;
+    if (s < 0 || s > 86399) {
+        cout << "Cекунды введены неверно! "; do {
+            cout << "Введите сколько секунд необходимо вычесть: "; cin >> s;
+        } while (s < 0 || s > 86399);
+    }                                                                      //Время - секунд
+    cout << "Время после выполения операции:" << endl;
+    minuss(b, s);
+    cout << endl;
+ 
+    cout << "Сравнение 2-ух моментов времени:" << endl;    //Сравнени 2-ух моментов времени
+    cout << "Первое время : "; cout << b << endl;
+    cout << "Второе время : "; cout << b1 << endl;
+    if( a > a1 == 1) {cout << "Первое время больше второго времени" << endl;  cout << a << " > " << a1 << endl;};
+     if (a < a1 == 1)  {cout << "Первое время меньше второго времени" << endl; cout << a << " < " << a1 << endl;}
+     if (a==a1 == 1) cout << "Промежутки времени одинаковые" << endl;
+ 
+    cout << "Перевод в секунды:" << endl;    // в секунды
+    cout << "Количество секунд в данном интервале времени:" << ToSec(b) << endl;
+    cout << endl;
+ 
+    cout << "Перевод в минуты:" << endl;    // в минуты
+    cout << "Количество минут в данном интервале времени (до целого значения):" << ToMin(b) << endl;
+    cout << endl;
+ 
+    cout << "Инициализация Секундами:" << endl;
+    do {
+        cout << "Введите кол-во секунды, которые необходимо перевести (не превыщающее значение 86399) = "; cin >> s;
+    } while (s > 86399 || s < 0);
+    Time с(s);
+    cout  << с << endl;
+    cout << "toString: " << ToString(с) << endl;
+    cout << endl;
+    cout << "Вычисление разницы между временем и значением в секундах:" << endl;
+    cout << "Второй момент времени:" << endl;  do {
+        cout << "Введите кол-во секунды, которые необходимо перевести (не превыщающее значение 86399) = "; cin >> s;
+    } while (s > 86399 || s < 0);
+    Time с1(s);
+    cout << с1 << endl;
+    cout << "toString: " << ToString(с1) << endl;
+    s1 = razn(с, с1);
+    cout << "Разница между временем составляет (в секундах) :" << s1 << endl;
+    cout << endl;
+ 
+    cout << "Сложение времени и заданного количества секунд:" << endl;
+    cout << "Введите сколько секунд необходимо прибавить ко времени:"; cin >> s;
+    if (s < 0 || s > 86399) {
+        cout << "Cекунды введены неверно! "; do {
+            cout << "Введите сколько секунд необходимо прибавить: "; cin >> s;
+        } while (s < 0 || s > 86399);
+    }                                                                                  //Время + секунды
+    cout << "Время после выполения операции:" << endl;
+    summ(с, s);
+    cout << endl;
+ 
+    cout << "Вычитание из времени заданного количества секунд:" << endl;
+    cout << "Введите сколько секунд необходимо вычесть из времени:"; cin >> s;
+    if (s < 0 || s > 86399) {
+        cout << "Cекунды введены неверно! "; do {
+            cout << "Введите сколько секунд необходимо вычесть: "; cin >> s;
+        } while (s < 0 || s > 86399);
+    }                                                                      //Время - секунд
+    cout << "Время после выполения операции:" << endl;
+    minuss(с, s);
+    cout << endl;
+ 
+    cout << "Сравнение 2-ух моментов времени:" << endl;    //Сравнени 2-ух моментов времени
+    cout << "Первое время : "; cout << с << endl;
+    cout << "Второе время : "; cout << с1 << endl;
+    if( a > a1 == 1) {cout << "Первое время больше второго времени" << endl;  cout << a << " > " << a1 << endl;};
+     if (a < a1 == 1)  {cout << "Первое время меньше второго времени" << endl; cout << a << " < " << a1 << endl;}
+     if (a==a1 == 1) cout << "Промежутки времени одинаковые" << endl;
+ 
+    cout << "Перевод в секунды:" << endl;    // в секунды
+    cout << "Количество секунд в данном интервале времени:" << ToSec(с) << endl;
+    cout << endl;
+ 
+    cout << "Перевод в минуты:" << endl;    // в минуты
+    cout << "Количество минут в данном интервале времени (до целого значения):" << ToMin(с) << endl;
+    cout << endl;
+ 
+    cout << "Инициализация Временем:" << endl;
+    Time f(13, 59, 59);
+    Time d = f;
+    cout  << d << endl;
+    cout << "toString: " << ToString(d) << endl;
+    cout << endl;
+    cout << "Вычисление разницы между временем и значением в секундах:" << endl;
+    cout << "Второй момент времени: " << endl; Time d1(23,59,58);
+    cout << d1 << endl;
+    cout << "toString: " << ToString(d1) << endl;
+    s1 = razn(d, d1);
+    cout << "Разница между временем составляет (в секундах) :" << s1 << endl;
+    cout << endl;
+ 
+    cout << "Сложение времени и заданного количества секунд:" << endl;
+    cout << "Введите сколько секунд необходимо прибавить ко времени:"; cin >> s;
+    if (s < 0 || s > 86399) {
+        cout << "Cекунды введены неверно! "; do {
+            cout << "Введите сколько секунд необходимо прибавить: "; cin >> s;
+        } while (s < 0 || s > 86399);
+    }                                                                                  //Время + секунды
+    cout << "Время после выполения операции:" << endl;
+    summ(d, s);
+    cout << endl;
+ 
+    cout << "Вычитание из времени заданного количества секунд:" << endl;
+    cout << "Введите сколько секунд необходимо вычесть из времени:"; cin >> s;
+    if (s < 0 || s > 86399) {
+        cout << "Cекунды введены неверно! "; do {
+            cout << "Введите сколько секунд необходимо вычесть: "; cin >> s;
+        } while (s < 0 || s > 86399);
+    }                                                                      //Время - секунд
+    cout << "Время после выполения операции:" << endl;
+    minuss(d, s);
+    cout << endl;
+ 
+    cout << "Сравнение 2-ух моментов времени:" << endl;    //Сравнени 2-ух моментов времени
+    cout << "Первое время : "; cout << d << endl;
+    cout << "Второе время : "; cout << d1 << endl;
+    if( a > a1 == 1) {cout << "Первое время больше второго времени" << endl;  cout << a << " > " << a1 << endl;};
+     if (a < a1 == 1)  {cout << "Первое время меньше второго времени" << endl; cout << a << " < " << a1 << endl;}
+     if (a==a1 == 1) cout << "Промежутки времени одинаковые" << endl;
+ 
+    cout << "Перевод в секунды:" << endl;    // в секунды
+    cout << "Количество секунд в данном интервале времени:" << ToSec(d) << endl;
+    cout << endl;
+ 
+    cout << "Перевод в минуты:" << endl;    // в минуты
+    cout << "Количество минут в данном интервале времени (до целого значения):" << ToMin(d) << endl;
+    cout << endl;
+ 
+    system("pause");
+    return 0;
+}
